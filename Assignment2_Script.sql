@@ -1,7 +1,7 @@
 USE baseball;
 
 #Historic batting average
-CREATE OR REPLACE TABLE HistBattingAvg(batter int, battingaverage float) ENGINE=MyISAM
+CREATE OR REPLACE TABLE HistBattingAvg AS 
 SELECT batter,SUM(IFNULL(Hit,0))/NULLIF(SUM(IFNULL(atBat,0)),0) AS battingavg 
 FROM batter_counts 
 GROUP BY batter;
@@ -10,7 +10,7 @@ GROUP BY batter;
 SELECT * FROM HistBattingAvg;
 
 #annual batting average
-CREATE OR REPLACE TABLE AnnualBattingAvg(batter int, battingaverage float, DateYear int) ENGINE=MyISAM
+CREATE OR REPLACE TABLE AnnualBattingAvg AS
 SELECT batter, SUM(IFNULL(Hit,0))/NULLIF(SUM(IFNULL(atBat,0)),0) AS battingavg, YEAR(local_date)
 FROM batter_counts bc JOIN game g2 ON bc.game_id = g2.game_id 
 GROUP BY batter,YEAR(local_date)
@@ -24,12 +24,12 @@ SELECT * FROM AnnualBattingAvg;
 
 #Rolling average
 
-CREATE OR REPLACE TABLE batters 
+CREATE OR REPLACE TABLE batters AS
 SELECT batter,atBat , Hit , b.game_id , local_date
 FROM batter_counts b JOIN game g ON b.game_id = g.game_id 
-ORDER BY batter game_id ,local_date ;
+ORDER BY game_id ,local_date ;
 
-CREATE OR REPLACE TABLE RollingBattingAvg 
+CREATE OR REPLACE TABLE RollingBattingAvg AS
 SELECT SUM(IFNULL(HistBatters.Hit,0))/NULLIF(SUM(IFNULL(HistBatters.atBat,0)),0) as RollingAvg, CurrBatters.local_date as Local_date, CurrBatters.batter, CurrBatters.game_id , count(*) as cnt
 FROM batters CurrBatters JOIN batters HistBatters
 ON CurrBatters.batter = HistBatters.batter AND HistBatters.local_date > DATE_SUB(CurrBatters.local_date,interval 100 DAY) AND HistBatters.local_date < CurrBatters.local_date
