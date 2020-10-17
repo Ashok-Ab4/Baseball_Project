@@ -1,4 +1,11 @@
 numpy
 pandas
 plotly
+<<<<<<< Updated upstream
 scikit-learn
+=======
+scikit-learn
+pyspark
+pyspark-stubs
+statsmodels.api
+>>>>>>> Stashed changes
