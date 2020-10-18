@@ -7,6 +7,7 @@ import statsmodels.api as sm
 from plotly import express as px
 from plotly import figure_factory as ff
 from plotly import graph_objs as go
+from plotly.subplots import make_subplots
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.metrics import confusion_matrix
 
@@ -53,9 +54,9 @@ def main(input_df_filename, response):
     p = []
     t = []
     PTplot = []
-    # DWM = []
-    # DWMW = []
-    # DM_Plt = []
+    DWM = []
+    DWMW = []
+    DM_Plt = []
 
     # checking if response is boolean or continuous
     x = CheckResponse(input_df, response)
@@ -94,7 +95,7 @@ def main(input_df_filename, response):
                     xaxis_title="Response",
                     yaxis_title="Distribution",
                 )
-                fig_1.show()
+                #fig_1.show()
                 fig_1.write_html(
                     file="~/plots/cont_response_cat_predictor_dist_plot"
                     + columnsf
@@ -124,7 +125,7 @@ def main(input_df_filename, response):
                     xaxis_title="Predictor",
                     yaxis_title="Response",
                 )
-                fig.show()
+                #fig.show()
                 fig.write_html(
                     file="~/plots/cont_response_cont_predictor_scatter_plot"
                     + columnsf
@@ -156,7 +157,7 @@ def main(input_df_filename, response):
                     xaxis_title="Response",
                     yaxis_title="Predictor",
                 )
-                fig.show()
+                #fig.show()
                 fig.write_html(
                     file="~/plots/cat_response_cat_predictor_heat_map"
                     + columnsf
@@ -197,7 +198,7 @@ def main(input_df_filename, response):
                     xaxis_title="Response",
                     yaxis_title="Predictor",
                 )
-                fig_2.show()
+                #fig_2.show()
                 fig_2.write_html(
                     file="~/plots/cat_response_cont_predictor_violin_plot"
                     + columnsf
@@ -235,7 +236,7 @@ def main(input_df_filename, response):
                 xaxis_title=f"Variable: {columns}",
                 yaxis_title="y",
             )
-            fig.show()
+           # fig.show()
             fig.write_html(file=f"~/plots/var_{columns}.html", include_plotlyjs="cdn")
             PTplot.append(
                 "<a href ="
@@ -250,7 +251,9 @@ def main(input_df_filename, response):
         else:
             # for categorical responses, we use logistic regression
             predictor = sm.add_constant(input_df[columns])
-            logistic_regression_model = sm.Logit(y, predictor)
+            y1= y1.astype('category')
+            y1= y1.cat.codes
+            logistic_regression_model = sm.Logit(y1, predictor)
             logistic_regression_model_fitted = logistic_regression_model.fit()
 
             # getting the statistics
@@ -266,7 +269,7 @@ def main(input_df_filename, response):
                 xaxis_title=f"Variable: {columns}",
                 yaxis_title="y",
             )
-            fig.show()
+            #fig.show()
             fig.write_html(file=f"~/plots/var_{columnsf}.html", include_plotlyjs="cdn")
             PTplot.append(
                 "<a href ="
@@ -298,12 +301,87 @@ def main(input_df_filename, response):
             imp = RandImp.feature_importances_
 
         # Lets do the mean and weighted means next
+        bin_df = pd.DataFrame(
+            {
+                "predval": input_df[columns],
+                "respval": input_df[response],
+                "bin": pd.qcut(input_df[columns], 10, duplicates="drop"),
+            }
+        )
+        bin_df_grouped = bin_df.groupby(bin_df["bin"]).agg(
+            {"bin": ["count"], "respval": ["mean"], "predval": ["mean"]}
+        )
+        bin_df_grouped.columns = ["BinCounts", "BinMeans", "PredMean"]
+        bin_df_grouped.reset_index(inplace=True)
+        bin_df_grouped["PopulationMean"] = input_df["Outcome"].mean()
+        bin_df_grouped["PopulationProportion"] = bin_df_grouped["BinCounts"] / sum(
+            bin_df_grouped["BinCounts"]
+        )
+        bin_df_grouped["MeanSqDiff"] = (
+                                               bin_df_grouped["BinMeans"] - bin_df_grouped["PopulationMean"]
+                                       ) ** 2
+        bin_df_grouped["MeanSqDiffWeight"] = (
+                bin_df_grouped["MeanSqDiff"] * bin_df_grouped["PopulationProportion"]
+        )
+        DWM.append(sum(bin_df_grouped["MeanSqDiff"]))
+        DWMW.append(sum(bin_df_grouped["MeanSqDiffWeight"]))
 
+        # Lets generate the mean and weighted mean plots
+        # lets make the hist data plots using make_subplots from plotly
+        # https://plotly.com/python/multiple-axes/
+        DWMplot = make_subplots(specs=[[{"secondary_y": True}]])
+
+        # Add traces
+        DWMplot.add_trace(
+            go.Bar(
+                x=bin_df_grouped["PredMean"],
+                y=bin_df_grouped["BinCounts"],
+                name=" Histogram ",
+            ),
+            secondary_y=False,
+        )
+
+        DWMplot.add_trace(
+            go.Scatter(
+                x=bin_df_grouped["PredMean"],
+                y=bin_df_grouped["BinMeans"],
+                name=" Bin Mean ",
+                line=dict(color="red"),
+            ),
+            secondary_y=True,
+        )
+
+        DWMplot.add_trace(
+            go.Scatter(
+                x=bin_df_grouped["PredMean"],
+                y=bin_df_grouped["PopulationMean"],
+                name="Population Mean",
+                line=dict(color="green"),
+            ),
+            secondary_y=True,
+        )
+        DWMplot.write_html(
+            file="~/plots/Weighted_mean_response_plot" + columnsf + ".html",
+            include_plotlyjs="cdn",
+        )
+        DM_Plt.append(
+            "<a href ="
+            + "~/plots/Weighted_mean_response_plot"
+            + columnsf
+            + ".html"
+            + ">"
+            + "plt for"
+            + columnsf
+            + "</a>"
+        )
         # Lets put everything together in the output dataframe and save it as an html file
     Result_df["Variable type"] = vartype
     Result_df["p-value"] = p
     Result_df["t-score"] = t
     Result_df["plot link"] = pltlnk
+    Result_df["DiffWMean"] = DWM
+    Result_df["DiffWMeanWeighted"] = DWMW
+    Result_df["DiffMeanPlot"] = DM_Plt
     Result_df["RandForestImp"] = imp
 
     Result_df.to_html("Ashok_Assignment4.html", render_links=True, escape=False)
