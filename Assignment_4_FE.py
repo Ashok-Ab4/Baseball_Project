@@ -96,9 +96,13 @@ def main(input_df_filename, response):
                 group_labels = input_df[columns].unique()
                 # Lets assume that all categorical variables are only boolean, and they have 2 possible unique values
                 # Slicing the group labels list to only contain the first two labels
-                group1Data = input_df[input_df[columns] == group_labels[0]][columns]
-                group2Data = input_df[input_df[columns] == group_labels[1]][columns]
-                hist_data = [group1Data.values, group2Data.values]
+                hist_data = [
+                    input_df[input_df[columns] == z][response]
+                    for z in input_df[columns].unique()
+                ]
+                group_labels = [
+                    "group_{}".format(n) for n in (input_df[columns].unique())
+                ]
                 # creating distribution plot with custom bin size
                 fig_1 = ff.create_distplot(hist_data, group_labels, bin_size=0.2)
                 fig_1.update_layout(
@@ -128,7 +132,7 @@ def main(input_df_filename, response):
                 # since both the response and predictor are now continuous, lets proceed with a plot for that iteration
                 vartype.append("Continuous")
                 # for continuous/continuous combination, we will generate a trend line
-                x1 = input_df[columns].values()
+                x1 = input_df[columns]
                 y1 = y
                 fig = px.scatter(x=x1, y=y1, trendline="ols")
                 fig.update_layout(
