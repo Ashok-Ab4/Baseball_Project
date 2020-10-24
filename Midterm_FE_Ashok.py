@@ -159,120 +159,124 @@ def main(input_df_filename, response):
     corr_coeff_cont_cont = []
     p = []
     # lets begin the correlation metrics for continuous continuous predictors:
-    for cols in cont:
-        temp = []
-        for columns in cont:
-            var1_cont_cont.append(cols)
-            var2_cont_cont.append(columns)
-            x = input_df[cols]
-            y = input_df[columns]
-            coeff, pv = stats.pearsonr(x, y)
-            corr_cont_cont.append(coeff)
-            temp.append(coeff)
-            p.append(pv)
-        corr_coeff_cont_cont.append(temp)
-    corr_df_cont_cont["Variable1"] = var1_cont_cont
-    corr_df_cont_cont["Variable2"] = var2_cont_cont
-    corr_df_cont_cont["Correlation coefficient"] = corr_cont_cont
-    corr_df_cont_cont["p-value"] = p
-    corr_df_cont_cont["A4_link"] = Assignment4link
-    # Lets order the dataframe in desc order of corr coeff
-    corr_df_cont_cont.sort_values(
-        by="Correlation coefficient", inplace=True, ascending=False
-    )
+    if cont:
+        for cols in cont:
+            temp = []
+            for columns in cont:
+                var1_cont_cont.append(cols)
+                var2_cont_cont.append(columns)
+                x = input_df[cols]
+                y = input_df[columns]
+                coeff, pv = stats.pearsonr(x, y)
+                corr_cont_cont.append(coeff)
+                temp.append(coeff)
+                p.append(pv)
+            corr_coeff_cont_cont.append(temp)
+        corr_df_cont_cont["Variable1"] = var1_cont_cont
+        corr_df_cont_cont["Variable2"] = var2_cont_cont
+        corr_df_cont_cont["Correlation coefficient"] = corr_cont_cont
+        corr_df_cont_cont["p-value"] = p
+        corr_df_cont_cont["A4_link"] = Assignment4link
+        # Lets order the dataframe in desc order of corr coeff
+        corr_df_cont_cont.sort_values(
+            by="Correlation coefficient", inplace=True, ascending=False
+        )
 
-    # # creating the correlation matrix:
-    Fig_cont_cont = CreateCorrMatrix(cont, cont, corr_coeff_cont_cont)
-    Fig_cont_cont.write_html(
-        file=f"~/plots/Corr_Matrix_cont_cont.html",
-        include_plotlyjs="cdn",
-    )
-    Cont_cont_corrmatrix = (
-        "<a href ="
-        + "~/plots/Corr_Matrix_cont_cont"
-        + ".html"
-        + ">"
-        + "cont_cont_correlation_matrix"
-        + "</a>"
-    )
-    corr_df_cont_cont["Corr Matrix Link"] = Cont_cont_corrmatrix
+        # # creating the correlation matrix:
+        Fig_cont_cont = CreateCorrMatrix(cont, cont, corr_coeff_cont_cont)
+        Fig_cont_cont.write_html(
+            file=f"~/plots/Corr_Matrix_cont_cont.html",
+            include_plotlyjs="cdn",
+        )
+        Cont_cont_corrmatrix = (
+            "<a href ="
+            + "~/plots/Corr_Matrix_cont_cont"
+            + ".html"
+            + ">"
+            + "cont_cont_correlation_matrix"
+            + "</a>"
+        )
+        corr_df_cont_cont["Corr Matrix Link"] = Cont_cont_corrmatrix
     # lets next calculate the correlation metrics for continuous categorical combinations
     corr_coeff_cont_cat = []
     var1_cont_cat = []
     var2_cont_cat = []
     corr_cont_cat = []
-    for cols in cont:
-        temp = []
-        for columns in cat:
-            var1_cont_cat.append(cols)
-            var2_cont_cat.append(columns)
-            x = cat_cont_correlation_ratio(input_df[columns], input_df[cols])
-            corr_cont_cat.append(x)
-            temp.append(x)
-        corr_coeff_cont_cat.append(temp)
-    corr_df_cont_cat["Variable1"] = var1_cont_cat
-    corr_df_cont_cat["Variable2"] = var2_cont_cat
-    corr_df_cont_cat["Correlation Coefficient"] = corr_cont_cat
-    corr_df_cont_cat["A4_link"] = Assignment4link
-    # lets order the df in descending order
-    corr_df_cont_cat.sort_values(
-        by="Correlation Coefficient", inplace=True, ascending=False
-    )
+    if cont:
+        if cat:
+            for cols in cont:
+                temp = []
+                for columns in cat:
+                    var1_cont_cat.append(cols)
+                    var2_cont_cat.append(columns)
+                    x = cat_cont_correlation_ratio(input_df[columns], input_df[cols])
+                    corr_cont_cat.append(x)
+                    temp.append(x)
+                corr_coeff_cont_cat.append(temp)
+            corr_df_cont_cat["Variable1"] = var1_cont_cat
+            corr_df_cont_cat["Variable2"] = var2_cont_cat
+            corr_df_cont_cat["Correlation Coefficient"] = corr_cont_cat
+            corr_df_cont_cat["A4_link"] = Assignment4link
+            # lets order the df in descending order
+            corr_df_cont_cat.sort_values(
+                by="Correlation Coefficient", inplace=True, ascending=False
+            )
 
-    # creating the correlation matrix:
-    Fig_cont_cat = CreateCorrMatrix(cont, cat, corr_coeff_cont_cat)
-    Fig_cont_cat.write_html(
-        file=f"~/plots/Corr_Matrix_cont_cat.html",
-        include_plotlyjs="cdn",
-    )
-    Cont_cat_corrmatrix = (
-        "<a href ="
-        + "~/plots/Corr_Matrix_cont_cat"
-        + ".html"
-        + ">"
-        + "cont_cat_correlation_matrix"
-        + "</a>"
-    )
-    corr_df_cont_cat["CorrMatrix Link"] = Cont_cat_corrmatrix
+            # creating the correlation matrix:
+            Fig_cont_cat = CreateCorrMatrix(cont, cat, corr_coeff_cont_cat)
+            Fig_cont_cat.write_html(
+                file=f"~/plots/Corr_Matrix_cont_cat.html",
+                include_plotlyjs="cdn",
+            )
+            Cont_cat_corrmatrix = (
+                "<a href ="
+                + "~/plots/Corr_Matrix_cont_cat"
+                + ".html"
+                + ">"
+                + "cont_cat_correlation_matrix"
+                + "</a>"
+            )
+            corr_df_cont_cat["CorrMatrix Link"] = Cont_cat_corrmatrix
 
     # lets next calculate the metrics for categorical categorical combinations
     corr_coeff_cat_cat = []
     var1_cat_cat = []
     var2_cat_cat = []
     corr_cat_cat = []
-    for cols in cat:
-        temp = []
-        for columns in cat:
-            var1_cat_cat.append(cols)
-            var2_cat_cat.append(columns)
-            x = cat_correlation(input_df[cols], input_df[columns])
-            corr_cat_cat.append(x)
-            temp.append(x)
-        corr_coeff_cat_cat.append(temp)
-    corr_df_cat_cat["Variable1"] = var1_cat_cat
-    corr_df_cat_cat["Variable2"] = var2_cat_cat
-    corr_df_cat_cat["Correlation Coefficient"] = corr_cat_cat
-    corr_df_cat_cat["A4_link"] = Assignment4link
-    # lets order the df in descending order
-    corr_df_cat_cat.sort_values(
-        by="Correlation Coefficient", inplace=True, ascending=False
-    )
+    if cat:
+        for cols in cat:
+            temp = []
+            for columns in cat:
+                var1_cat_cat.append(cols)
+                var2_cat_cat.append(columns)
+                x = cat_correlation(input_df[cols], input_df[columns])
+                corr_cat_cat.append(x)
+                temp.append(x)
+            corr_coeff_cat_cat.append(temp)
+        corr_df_cat_cat["Variable1"] = var1_cat_cat
+        corr_df_cat_cat["Variable2"] = var2_cat_cat
+        corr_df_cat_cat["Correlation Coefficient"] = corr_cat_cat
+        corr_df_cat_cat["A4_link"] = Assignment4link
+        # lets order the df in descending order
+        corr_df_cat_cat.sort_values(
+            by="Correlation Coefficient", inplace=True, ascending=False
+        )
 
-    # lets make the correlation matrix
-    Fig_cat_cat = CreateCorrMatrix(cat, cat, corr_coeff_cat_cat)
-    Fig_cat_cat.write_html(
-        file=f"~/plots/Corr_Matrix_cat_cat.html",
-        include_plotlyjs="cdn",
-    )
-    Cat_cat_corrmatrix = (
-        "<a href ="
-        + "~/plots/Corr_Matrix_cat_cat"
-        + ".html"
-        + ">"
-        + "cat_cat_correlation_matrix"
-        + "</a>"
-    )
-    corr_df_cat_cat["corr matrix link"] = Cat_cat_corrmatrix
+        # lets make the correlation matrix
+        Fig_cat_cat = CreateCorrMatrix(cat, cat, corr_coeff_cat_cat)
+        Fig_cat_cat.write_html(
+            file=f"~/plots/Corr_Matrix_cat_cat.html",
+            include_plotlyjs="cdn",
+        )
+        Cat_cat_corrmatrix = (
+            "<a href ="
+            + "~/plots/Corr_Matrix_cat_cat"
+            + ".html"
+            + ">"
+            + "cat_cat_correlation_matrix"
+            + "</a>"
+        )
+        corr_df_cat_cat["corr matrix link"] = Cat_cat_corrmatrix
 
     # Lets get started on the brute force variable combinations.
     # First we will do the continuous/continuous pairs.
@@ -340,6 +344,7 @@ def main(input_df_filename, response):
                 bin_df_grouped["MeanSqDiffWeight"] = (
                     bin_df_grouped["MeanSqDiff"] * PopulationProportion
                 )
+                bin_df_grouped = bin_df_grouped.dropna(axis=0, how='any')
                 DiffMean_cont_cont.append(sum(bin_df_grouped["MeanSqDiff"]))
                 DiffMeanW_cont_cont.append(sum(bin_df_grouped["MeanSqDiffWeight"]))
                 heatmap_data = pd.pivot_table(
@@ -348,7 +353,7 @@ def main(input_df_filename, response):
                     columns=columns,
                     values="MeanSqDiffWeight",
                 )
-                heatplot = sns.heatmap(heatmap_data, annot=True, cmap="RdBu")
+                heatplot = sns.heatmap(heatmap_data, annot=False, cmap="RdBu")
                 fig = heatplot.get_figure()
                 fig.savefig("~/plots/BF" + cols + "" + columns + ".png")
                 plt.clf()
@@ -404,14 +409,15 @@ def main(input_df_filename, response):
             bin_df_grouped["MeanSqDiffWeight"] = (
                 bin_df_grouped["MeanSqDiff"] * PopulationProportion
             )
+            bin_df_grouped = bin_df_grouped.dropna(axis=0, how='any')
             DiffMean_cont_cat.append(sum(bin_df_grouped["MeanSqDiff"]))
             DiffMeanW_cont_cat.append(sum(bin_df_grouped["MeanSqDiffWeight"]))
             heatmap_data = pd.pivot_table(
                 bin_df_grouped, index=cols, columns=columns, values="MeanSqDiffWeight"
             )
-            heatplot = sns.heatmap(heatmap_data, annot=True, cmap="RdBu")
+            heatplot = sns.heatmap(heatmap_data, annot=False, cmap="RdBu")
             fig = heatplot.get_figure()
-            fig.savefig("~/plots/Output" + cols + "" + columns + ".png")
+            fig.savefig("~/plots/BF" + cols + "" + columns + ".png")
             plt.clf()
             DWMHP_cont_cat.append(
                 "<a href ="
@@ -466,6 +472,7 @@ def main(input_df_filename, response):
                 bin_df_grouped["MeanSqDiffWeight"] = (
                     bin_df_grouped["MeanSqDiff"] * PopulationProportion
                 )
+                bin_df_grouped = bin_df_grouped.dropna(axis=0, how='any')
                 DiffMean_cat_cat.append(sum(bin_df_grouped["MeanSqDiff"]))
                 DiffMeanW_cat_cat.append(sum(bin_df_grouped["MeanSqDiffWeight"]))
                 heatmap_data = pd.pivot_table(
@@ -474,9 +481,9 @@ def main(input_df_filename, response):
                     columns=columns,
                     values="MeanSqDiffWeight",
                 )
-                heatplot = sns.heatmap(heatmap_data, annot=True, cmap="RdBu")
+                heatplot = sns.heatmap(heatmap_data, annot=False, cmap="RdBu")
                 fig = heatplot.get_figure()
-                fig.savefig("~/plots/Output" + cols + "" + columns + ".png")
+                fig.savefig("~/plots/BF" + cols + "" + columns + ".png")
                 plt.clf()
                 DWMHP_cat_cat.append(
                     "<a href ="
