@@ -114,7 +114,7 @@ def main(input_df_filename, response):
     # First lets call the Assignment 4 script and store its output in a separate variable for further manipulations
     Assignment_4_FE.main(input_df_filename, response)
     Assignment4link = (
-        "<a href=" + "/BDA696MLENG/Ashok_Assignment4.html" + ">" + "Assignment4link"
+        "<a href=" + "./Ashok_Assignment4.html" + ">" + "Assignment4link"
         "</a>"
     )
     # print(Assign4_result_df.head())
