@@ -3,4 +3,13 @@ pandas
 plotly
 scikit-learn
 pyspark
+<<<<<<< Updated upstream
 pyspark-stubs
+=======
+pyspark-stubs
+statsmodels.api
+scipy
+matplotlib.pyplot
+seaborn
+sys
+>>>>>>> Stashed changes
