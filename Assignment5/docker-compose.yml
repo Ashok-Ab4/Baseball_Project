@@ -1,0 +1,27 @@
+version: "3.3"
+
+services:
+  baseball_container:
+    image: mariadb
+    container_name: baseball_container
+    ports:
+      - "3306"
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD="true"
+      - SQL_CLIENT_PORTT=3307
+    restart: unless-stopped
+    volumes:
+      - "./Assignment5:/config"
+  RollingAvg_container:
+    container_name: RollingAvg_container
+    depends_on:
+      - baseball_container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mariadb
+    ports:
+      - "8080"
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD="true"
+    restart: unless-stopped
