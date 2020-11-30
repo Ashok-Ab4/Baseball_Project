@@ -1,27 +1,33 @@
 version: "3.3"
 
 services:
-  baseball_container:
-    image: mariadb
-    container_name: baseball_container
-    ports:
-      - "3306"
+
+  mariadb-container:
+    image: linuxserver/mariadb:latest  # I like this image more than the base one
+    container_name: mariadb-container
     environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD="true"
-      - SQL_CLIENT_PORTT=3307
+      PUID: 1000
+      PGID: 1000
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
     restart: unless-stopped
     volumes:
-      - "./Assignment5:/config"
-  RollingAvg_container:
-    container_name: RollingAvg_container
+      - ./db:/config
+    networks:
+      - backend
+
+  colling-avg-container:
+    container_name: colling-avg-container
     depends_on:
-      - baseball_container
+      - mariadb-container
     build:
       context: .
       dockerfile: Dockerfile
-    image: mariadb
-    ports:
-      - "8080"
-    environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD="true"
-    restart: unless-stopped
+    volumes:
+      - ./results:/results
+    networks:
+      - backend
+
+networks:
+  backend:

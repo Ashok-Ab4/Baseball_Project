@@ -14,6 +14,4 @@ ON CurrBatters.batter = HistBatters.batter AND HistBatters.local_date > DATE_SUB
 WHERE CurrBatters.game_id = 12560 #(remove comment to limit values to a particular game)
 GROUP BY CurrBatters.game_id,CurrBatters.batter,CurrBatters.local_date;
 
-#selecting values from the RollingAvg table
-SELECT * FROM RollingBattingAvg
-Into Outfile './RollingAvg.csv';
+

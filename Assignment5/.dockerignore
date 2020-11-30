@@ -1,7 +1,10 @@
 ########################################################################
 # Used the gitignore from:
 #    https://github.com/github/gitignore/blob/master/Python.gitignore
+# I would recommend this ignore file be a copy of .gitignore with
+# the addition of `.git`
 ########################################################################
+.git
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -151,6 +154,5 @@ media
 static
 
 # Project related ignores (place project related ignores below here)
-Assignment5/results/
-Assignment5/db/
-Assignment5/baseball.sql
+db/
+results/
