@@ -1,5 +1,60 @@
 use baseball;
 
+#fixing stolenbase calculations
+create table fix_stealing as 
+select * from 
+	(select g.game_id ,
+	 g.away_team_id as team_id,
+	 sum(case when des = "Stolen Base 2B" then 1 else 0 end) as stolenBase2B,
+	 sum(case when des = "Stolen Base 3b" then 1 else 0 end) as stolenBase3B,
+	 sum(case when des = "Stolen Base Home" then 1 else 0 end) as stolenBaseHome,
+	 sum(case when des = "Caught Stealing 2b"then 1 else 0 end) as caughtStealing2B,
+	 sum(case when des = "Caught Stealing 3b"then 1 else 0 end) as caughtStealing3B,
+	 sum(case when des = "Caught Stealing Home"then 1 else 0 end) as caughtStealingHome
+	 from inning i
+	 join game g
+	 on i.game_id = g.game_id 
+	 where i.half = 0 and i.entry = "runner"
+	 group by g.game_id , g.away_team_id 
+	 UNION 
+	 select g.game_id ,
+	 g.home_team_id as team_id,
+	 sum(case when des = "Stolen Base 2B" then 1 else 0 end) as stolenBase2B,
+	 sum(case when des = "Stolen Base 3b" then 1 else 0 end) as stolenBase3B,
+	 sum(case when des = "Stolen Base Home" then 1 else 0 end) as stolenBaseHome,
+	 sum(case when des = "Caught Stealing 2b"then 1 else 0 end) as caughtStealing2B,
+	 sum(case when des = "Caught Stealing 3b"then 1 else 0 end) as caughtStealing3B,
+	 sum(case when des = "Caught Stealing Home"then 1 else 0 end) as caughtStealingHome
+	 from inning i
+	 join game g
+	 on i.game_id = g.game_id 
+	 where i.half = 0 and i.entry = "runner"
+	 group by g.game_id , g.home_team_id  
+	 ) as subTable
+	order by game_id,team_id;	
+drop index team_game_uidx on fix_stealing;
+create unique index team_game_uidx on fix_stealing(team_id,game_id);
+
+#fixing team batting counts
+drop table if exists team_batting_counts_fixed;
+create table team_batting_counts_fixed like team_batting_counts;
+drop index team_game_uidx on team_batting_counts_fixed;
+create unique index team_game_uidx on team_batting_counts_fixed(team_id,game_id);
+insert into team_batting_counts_fixed select*from team_batting_counts ;
+
+insert into team_batting_counts_fixed(game_id,team_id,stolenBase2B,stolenBase3B,stolenBaseHome,caughtStealing2B,caughtStealing3B,caughtStealingHome)
+select game_id,team_id,stolenBase2B,stolenBase3B,stolenBaseHome,caughtStealing2B,caughtStealing3B,caughtStealingHome from fix_stealing fs
+on duplicate key update
+stolenBase2B = fs.stolenBase2B,
+stolenBase3B = fs.stolenBase3B,
+stolenBaseHome = fs.stolenBaseHome,
+caughtStealing2B = fs.caughtStealing2B,
+caughtStealing3B = fs.caughtStealing3B,
+caughtStealingHome = fs.caughtStealingHome;
+
+select * from team_batting_counts tbc ;
+select * from team_batting_counts_fixed;
+
 drop table if exists RollingAvgTable;
 create table RollingAvgTable as
 select
@@ -48,9 +103,9 @@ select
 		,sum(tbc2.Triple)as Triple 
 		,sum(tbc2.Triple_Play)as Triple_Play 
 		,sum(tbc2.Walk)as walk
-FROM team_batting_counts tbc1 
+FROM team_batting_counts_fixed tbc1 
 join game g1 on tbc1.game_id = g1.game_id and g1.`type` IN ("R")
-join team_batting_counts tbc2 on tbc1.team_id = tbc2.team_id 
+join team_batting_counts_fixed tbc2 on tbc1.team_id = tbc2.team_id 
 join game g2 on tbc2.game_id = g2.game_id and g2.`type` in ("R")
 and g2.local_date < g1.local_date and 
 g2.local_date >= DATE_ADD(g1.local_date,interval -200 day)
