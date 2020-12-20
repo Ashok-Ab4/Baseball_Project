@@ -256,9 +256,9 @@ def main(input_df_name,response):
 
     #Putting it All Together
 
-    PRP = PredRespPlots.main(input_df, response)
+    PRP = PredRespPlots.main(input_df_filename, response)
 
-    Corr1,Corr2,Corr3,Brut1,Brut2,Brut3 = Corr_Brut_Plots.main('OutputTable.csv',response)
+    Corr1,Corr2,Corr3,Brut1,Brut2,Brut3 = Corr_Brut_Plots.main(input_df_filename,response)
 
     PRP.to_html("Predictor_vs_Response_Plots.html", render_links=True, escape=False)
 
