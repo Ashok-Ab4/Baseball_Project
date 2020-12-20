@@ -14,8 +14,8 @@ from sklearn.preprocessing import Normalizer
 from FinalBDA696.scripts import Midterm_FE_Ashok as Corr_Brut_Plots, Assignment_4_FE as PredRespPlots
 
 
-def main(input_df_name,response):
-    input_df = pd.read_csv(input_df_name)
+def main(input_df_filename,response):
+    input_df = pd.read_csv(input_df_filename)
     input_df = input_df.dropna(axis=0, how="any")
     print(input_df.columns)
 
