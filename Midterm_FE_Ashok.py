@@ -8,8 +8,8 @@ import seaborn as sns
 from plotly import figure_factory as ff
 from scipy import stats
 
-import Assignment_4_FE
-from Assignment_4_FE import CheckPredictors, CheckResponse
+from FinalBDA696.scripts import Assignment_4_FE
+from FinalBDA696.scripts.Assignment_4_FE import CheckPredictors, CheckResponse
 
 
 def fill_na(data):
@@ -185,12 +185,12 @@ def main(input_df_filename, response):
         # # creating the correlation matrix:
         Fig_cont_cont = CreateCorrMatrix(cont, cont, corr_coeff_cont_cont)
         Fig_cont_cont.write_html(
-            file=f"~/plots/Corr_Matrix_cont_cont.html",
+            file=f"../plots/Corr_Matrix_cont_cont.html",
             include_plotlyjs="cdn",
         )
         Cont_cont_corrmatrix = (
             "<a href ="
-            + "~/plots/Corr_Matrix_cont_cont"
+            + "./plots/Corr_Matrix_cont_cont"
             + ".html"
             + ">"
             + "cont_cont_correlation_matrix"
@@ -225,12 +225,12 @@ def main(input_df_filename, response):
             # creating the correlation matrix:
             Fig_cont_cat = CreateCorrMatrix(cont, cat, corr_coeff_cont_cat)
             Fig_cont_cat.write_html(
-                file=f"~/plots/Corr_Matrix_cont_cat.html",
+                file=f"./plots/Corr_Matrix_cont_cat.html",
                 include_plotlyjs="cdn",
             )
             Cont_cat_corrmatrix = (
                 "<a href ="
-                + "~/plots/Corr_Matrix_cont_cat"
+                + "./plots/Corr_Matrix_cont_cat"
                 + ".html"
                 + ">"
                 + "cont_cat_correlation_matrix"
@@ -265,12 +265,12 @@ def main(input_df_filename, response):
         # lets make the correlation matrix
         Fig_cat_cat = CreateCorrMatrix(cat, cat, corr_coeff_cat_cat)
         Fig_cat_cat.write_html(
-            file=f"~/plots/Corr_Matrix_cat_cat.html",
+            file=f"./plots/Corr_Matrix_cat_cat.html",
             include_plotlyjs="cdn",
         )
         Cat_cat_corrmatrix = (
             "<a href ="
-            + "~/plots/Corr_Matrix_cat_cat"
+            + "./plots/Corr_Matrix_cat_cat"
             + ".html"
             + ">"
             + "cat_cat_correlation_matrix"
@@ -355,11 +355,11 @@ def main(input_df_filename, response):
                 )
                 heatplot = sns.heatmap(heatmap_data, annot=False, cmap="RdBu")
                 fig = heatplot.get_figure()
-                fig.savefig("~/plots/BF" + cols + "" + columns + ".png")
+                fig.savefig("./plots/BF" + cols + "" + columns + ".png")
                 plt.clf()
                 DWMHP_cont_cont.append(
                     "<a href ="
-                    + "~/plots/BF"
+                    + "./plots/BF"
                     + cols
                     + ""
                     + columns
@@ -417,11 +417,11 @@ def main(input_df_filename, response):
             )
             heatplot = sns.heatmap(heatmap_data, annot=False, cmap="RdBu")
             fig = heatplot.get_figure()
-            fig.savefig("~/plots/BF" + cols + "" + columns + ".png")
+            fig.savefig("./plots/BF" + cols + "" + columns + ".png")
             plt.clf()
             DWMHP_cont_cat.append(
                 "<a href ="
-                + "~/plots/BF"
+                + "./plots/BF"
                 + cols
                 + ""
                 + columns
@@ -483,11 +483,11 @@ def main(input_df_filename, response):
                 )
                 heatplot = sns.heatmap(heatmap_data, annot=False, cmap="RdBu")
                 fig = heatplot.get_figure()
-                fig.savefig("~/plots/BF" + cols + "" + columns + ".png")
+                fig.savefig("./plots/BF" + cols + "" + columns + ".png")
                 plt.clf()
                 DWMHP_cat_cat.append(
                     "<a href ="
-                    + "~/plots/BF"
+                    + "./plots/BF"
                     + cols
                     + ""
                     + columns
@@ -523,8 +523,9 @@ def main(input_df_filename, response):
         + brute_force_cat_cat.to_html(render_links=True, escape=False)
     )
 
+    return corr_df_cont_cont,corr_df_cont_cat,corr_df_cat_cat,brute_force_cont_cont,brute_force_cont_cat,brute_force_cat_cat
 
 if __name__ == "__main__":
-    input_df_filename = sys.argv[1]
-    response = sys.argv[2]
+    input_df_filename = 'OutputTable.csv'
+    response = 'Home_team_wins'
     sys.exit(main(input_df_filename, response))
