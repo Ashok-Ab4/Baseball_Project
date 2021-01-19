@@ -1,6 +1,7 @@
 import os
 import sys
-
+import pandas.core.algorithms as algos
+import scipy.stats.stats as stats
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
@@ -23,7 +24,7 @@ def CheckResponse(input_df, response):
 def CheckPredictors(input_df, pred):
     if (
         input_df[pred].dtypes == "object"
-        or input_df[pred].nunique() / input_df[pred].count() < 0.05
+        or input_df[pred].nunique() < 5
     ):
         return "categorical"
     else:
@@ -65,7 +66,7 @@ def main(input_df_filename, response):
     x = CheckResponse(input_df, response)
 
     # lets drop missing values so that no problmes occur in calculation
-    input_df = input_df.dropna(axis=1, how="any")
+    input_df = input_df.dropna(axis=0, how="any")
 
     # Dropping response from the main table and storing it in separate variable
     y = input_df[response].values
@@ -78,8 +79,8 @@ def main(input_df_filename, response):
     Result_df["Response Type"] = x
     # lets begin with generating the plots necessary for the given variables
     # first lets create a directory called plots to store the plots in, in case it hasn't been made already
-    if not os.path.exists("~/plots"):
-        os.makedirs("~/plots")
+    if not os.path.exists("../plots"):
+        os.makedirs("../plots")
     # firstly, if the response is categorical, it will needed to be converted to codes to enable further inspection. Lets do that
     if x == "boolean":
         input_df[response] = input_df[response].astype("category")
@@ -112,7 +113,7 @@ def main(input_df_filename, response):
                 )
                 # fig_1.show()
                 fig_1.write_html(
-                    file="~/plots/cont_response_cat_predictor_dist_plot"
+                    file="./plots/cont_response_cat_predictor_dist_plot"
                     + columnsf
                     + ".html",
                     include_plotlyjs="cdn",
@@ -120,7 +121,7 @@ def main(input_df_filename, response):
                 # syntax of url is < a href = "url" > link text </a>
                 pltlnk.append(
                     "<a href ="
-                    + "~/plots/cont_response_cat_predictor_dist_plot"
+                    + "./plots/cont_response_cat_predictor_dist_plot"
                     + columnsf
                     + ".html"
                     + ">"
@@ -142,7 +143,7 @@ def main(input_df_filename, response):
                 )
                 # fig.show()
                 fig.write_html(
-                    file="~/plots/cont_response_cont_predictor_scatter_plot"
+                    file="./plots/cont_response_cont_predictor_scatter_plot"
                     + columnsf
                     + ".html",
                     include_plotlyjs="cdn",
@@ -150,7 +151,7 @@ def main(input_df_filename, response):
                 # lets add the link to the pltlnk list
                 pltlnk.append(
                     "<a href ="
-                    + "~/plots/cont_response_cont_predictor_scatter_plot"
+                    + "./plots/cont_response_cont_predictor_scatter_plot"
                     + columnsf
                     + ".html"
                     + ">"
@@ -174,7 +175,7 @@ def main(input_df_filename, response):
                 )
                 # fig.show()
                 fig.write_html(
-                    file="~/plots/cat_response_cat_predictor_heat_map"
+                    file="./plots/cat_response_cat_predictor_heat_map"
                     + columnsf
                     + ".html",
                     include_plotlyjs="cdn",
@@ -182,7 +183,7 @@ def main(input_df_filename, response):
                 # lets add the link to the pltlnk list
                 pltlnk.append(
                     "<a href ="
-                    + "~/plots/cat_response_cat_predictor_heat_map"
+                    + "./plots/cat_response_cat_predictor_heat_map"
                     + columnsf
                     + ".html"
                     + ">"
@@ -215,7 +216,7 @@ def main(input_df_filename, response):
                 )
                 # fig_2.show()
                 fig_2.write_html(
-                    file="~/plots/cat_response_cont_predictor_violin_plot"
+                    file="./plots/cat_response_cont_predictor_violin_plot"
                     + columnsf
                     + ".html",
                     include_plotlyjs="cdn",
@@ -223,7 +224,7 @@ def main(input_df_filename, response):
                 # lets add the link to the pltlnk list
                 pltlnk.append(
                     "<a href ="
-                    + "~/plots/cat_response_cont_predictor_violin_plot"
+                    + "./plots/cat_response_cont_predictor_violin_plot"
                     + columnsf
                     + ".html"
                     + ">"
@@ -252,10 +253,10 @@ def main(input_df_filename, response):
                 yaxis_title="y",
             )
             # fig.show()
-            fig.write_html(file=f"~/plots/var_{columnsf}.html", include_plotlyjs="cdn")
+            fig.write_html(file=f"./plots/var_{columnsf}.html", include_plotlyjs="cdn")
             PTplot.append(
                 "<a href ="
-                + "~/plots/var_"
+                + "./plots/var_"
                 + columnsf
                 + ".html"
                 + ">"
@@ -283,10 +284,10 @@ def main(input_df_filename, response):
                 yaxis_title="y",
             )
             # fig.show()
-            fig.write_html(file=f"~/plots/var_{columnsf}.html", include_plotlyjs="cdn")
+            fig.write_html(file=f"./plots/var_{columnsf}.html", include_plotlyjs="cdn")
             PTplot.append(
                 "<a href ="
-                + "~/plots/var_"
+                + "./plots/var_"
                 + columnsf
                 + ".html"
                 + ">"
@@ -298,14 +299,35 @@ def main(input_df_filename, response):
         # Lets do the mean and weighted means next
 
         if CheckPredictors(input_df, columns) == "continuous":
-            bin_df = pd.DataFrame(
-                {
-                    "predval": input_df[columns],
-                    "respval": input_df[response],
-                    "bin": pd.qcut(input_df[columns], 10, duplicates="drop"),
-                }
-            )
-            bin_df_group = bin_df.groupby(bin_df["bin"])
+            n = 10
+            force_bin = 3
+            r = 0
+            while np.abs(r) < 1:
+                try:
+                    bin_df = pd.DataFrame(
+                        {"predval": input_df[columns], "respval": input_df[response],
+                         "Bucket": pd.cut(input_df[columns], n)}
+                    )
+                    bin_df_group = bin_df.groupby("Bucket", as_index=True)
+                    r, pp = stats.spearmanr(bin_df_group.mean().predval, bin_df_group.mean().respval)
+                    n = n - 1
+                except Exception:
+                    n = n - 1
+
+            if len(bin_df_group) == 1:
+                n = force_bin
+                bins = algos.quantile(input_df[columns], np.linspace(0, 1, n))
+                if len(np.unique(bins)) == 2:
+                    bins = np.insert(bins, 0, 1)
+                    bins[1] = bins[1] - (bins[1] / 2)
+                bin_df = pd.DataFrame(
+                    {
+                        "predval": input_df[columns],
+                        "respval": input_df[response],
+                        "Bucket": pd.cut(input_df[columns], np.unique(bins), include_lowest=True),
+                    }
+                )
+                bin_df_group = bin_df.groupby("Bucket", as_index=True)
             bin_df_grouped = pd.DataFrame()
             bin_df_grouped["BinCounts"] = bin_df_group["respval"].count()
             bin_df_grouped["BinMeans"] = bin_df_group["respval"].mean()
@@ -361,12 +383,12 @@ def main(input_df_filename, response):
             )
             # DWMplot.show()
             DWMplot.write_html(
-                file=f"~/plots/diff_mean_of_response_{columnsf}.html",
+                file=f"./plots/diff_mean_of_response_{columnsf}.html",
                 include_plotlyjs="cdn",
             )
             DM_Plt.append(
                 "<a href ="
-                + "~/plots/diff_mean_of_response_"
+                + "./plots/diff_mean_of_response_"
                 + columnsf
                 + ".html"
                 + ">"
@@ -434,12 +456,12 @@ def main(input_df_filename, response):
                 secondary_y=True,
             )
             DWMplot.write_html(
-                file=f"~/plots/diff_mean_of_response_{columnsf}.html",
+                file=f"./plots/diff_mean_of_response_{columnsf}.html",
                 include_plotlyjs="cdn",
             )
             DM_Plt.append(
                 "<a href ="
-                + "~/plots/diff_mean_of_response_"
+                + "./plots/diff_mean_of_response_"
                 + columnsf
                 + ".html"
                 + ">"
@@ -473,8 +495,8 @@ def main(input_df_filename, response):
 
     Result_df.to_html("Ashok_Assignment4.html", render_links=True, escape=False)
 
-
+    return Result_df
 if __name__ == "__main__":
-    input_df_filename = "diabetes.csv"  # sys.argv[1]
-    response = "Outcome"  # sys.argv[2]
+    input_df_filename = "OutputTable.csv"  # sys.argv[1]
+    response = "Home_team_wins"  # sys.argv[2]
     sys.exit(main(input_df_filename, response))
