@@ -16,3 +16,5 @@
 # Run `pre-commit` locally.
 
 `pre-commit run --all-files`
+
+## The code for the project is included in the 'Final' folder. 
