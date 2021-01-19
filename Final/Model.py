@@ -11,7 +11,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import Normalizer
-from FinalBDA696.scripts import Midterm_FE_Ashok as Corr_Brut_Plots, Assignment_4_FE as PredRespPlots
+from FinalBDA696.scripts import Correlation_Brute_Force_Plots as Corr_Brut_Plots, Assignment_4_FE as PredRespPlots
 
 
 def main(input_df_filename,response):
