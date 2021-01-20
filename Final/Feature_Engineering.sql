@@ -114,7 +114,7 @@ order by g1.local_date,tbc1.team_id;
 create unique index team_game on RollingAvgTable(team_id,game_id);
 
 #Making a final output table:- 
-drop table OutputTable ;
+drop table if exists OutputTable ;
 create table OutputTable as
 select g.home_team_id
 , g.away_team_id
