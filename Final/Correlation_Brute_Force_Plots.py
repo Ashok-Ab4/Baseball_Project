@@ -8,8 +8,8 @@ import seaborn as sns
 from plotly import figure_factory as ff
 from scipy import stats
 
-from FinalBDA696.scripts import Assignment_4_FE
-from FinalBDA696.scripts.Assignment_4_FE import CheckPredictors, CheckResponse
+from Final import Resp_Pred_Plots
+from Final.Resp_Pred_Plots import CheckPredictors, CheckResponse
 
 
 def fill_na(data):
@@ -112,7 +112,7 @@ def main(input_df_filename, response):
     input_df = pd.read_csv(input_df_filename)
 
     # First lets call the Assignment 4 script and store its output in a separate variable for further manipulations
-    Assignment_4_FE.main(input_df_filename, response)
+    Resp_Pred_Plots.main(input_df_filename, response)
     Assignment4link = (
         "<a href=" + "./Ashok_Assignment4.html" + ">" + "Assignment4link"
         "</a>"
