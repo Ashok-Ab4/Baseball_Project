@@ -1,5 +1,16 @@
 # PythonProject
 
+
+## The code for the project is included in the 'Final' folder. 
+
+## Check out the Wiki for a report on the Project
+
+
+
+
+
+
+
 # Setup for developement:
 
 - Setup a python 3.x venv (usually in `.venv`)
@@ -17,4 +28,3 @@
 
 `pre-commit run --all-files`
 
-## The code for the project is included in the 'Final' folder. 
