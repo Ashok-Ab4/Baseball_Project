@@ -2,8 +2,7 @@ numpy==2.2.6
 pandas==2.2.3
 plotly==6.1.2
 scikit-learn==1.6.1
-pyspark==3.0.3
-pyspark-stubs==3.0.0.post3
+pyspark==3.3.4
 statsmodels==0.14.4
 scipy==1.15.3
 matplotlib==3.10.3
