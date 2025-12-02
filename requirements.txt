@@ -8,7 +8,7 @@ contourpy==1.3.2
     # via matplotlib
 cycler==0.12.1
     # via matplotlib
-fonttools==4.58.1
+fonttools==4.61.0
     # via matplotlib
 joblib==1.5.1
     # via scikit-learn
@@ -47,15 +47,11 @@ pillow==11.2.1
     # via matplotlib
 plotly==6.1.2
     # via -r requirements.in
-py4j==0.10.9
+py4j==0.10.9.5
     # via pyspark
 pyparsing==3.2.3
     # via matplotlib
-pyspark==3.0.3
-    # via
-    #   -r requirements.in
-    #   pyspark-stubs
-pyspark-stubs==3.0.0.post3
+pyspark==3.3.4
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via
