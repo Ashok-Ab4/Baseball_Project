@@ -162,7 +162,7 @@ mypy-extensions==1.1.0
     # via black
 nbclient==0.10.2
     # via nbconvert
-nbconvert==7.16.6
+nbconvert==7.17.0
     # via jupyter-server
 nbformat==5.10.4
     # via
